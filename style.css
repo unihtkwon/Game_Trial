@@ -1,0 +1,510 @@
+/* ============================================================
+   Bingo Game — Series Edition
+   Dark casino theme · blue (P1) / red (P2) accents
+   ============================================================ */
+
+:root {
+  --bg:         #0b0b1e;
+  --card:       #13132b;
+  --border:     #2a2a4a;
+  --p1:         #4a9eff;
+  --p2:         #ff4a6e;
+  --marked:     #ffd700;
+  --winning:    #00e676;
+  --text:       #e8e8f0;
+  --dim:        #555570;
+  --spin-bg:    #1c1c3e;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: radial-gradient(ellipse at 50% 0%, #1e1e42, var(--bg) 70%);
+  min-height: 100vh;
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  gap: 18px;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+header {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+header h1 {
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: 10px;
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.new-series-btn {
+  position: absolute;
+  right: 0;
+  padding: 8px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.new-series-btn:hover { background: #1e1e40; border-color: #4a4a6a; }
+
+/* ── Scoreboard ─────────────────────────────────────────── */
+.scoreboard {
+  width: 100%;
+  max-width: 900px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Left / Right score blocks */
+.score-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.score-left  { flex-direction: row; }
+.score-right { flex-direction: row-reverse; }
+
+.score-name {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.p1-name { color: var(--p1); }
+.p2-name { color: var(--p2); }
+
+.score-wins {
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  min-width: 44px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.p1-wins { color: var(--p1); }
+.p2-wins { color: var(--p2); }
+
+/* Win count pop animation */
+.score-wins.pop {
+  animation: scorePop 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@keyframes scorePop {
+  0%   { transform: scale(1.0); }
+  45%  { transform: scale(1.4); }
+  100% { transform: scale(1.0); }
+}
+
+/* Center: slots + info */
+.score-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 9 game-result slots */
+.score-slots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.slot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: #151530;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  flex-shrink: 0;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Current game — subtle pulse */
+.slot.slot-current {
+  border-color: #6060a0;
+  color: #8888cc;
+  animation: slotPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes slotPulse {
+  from { box-shadow: 0 0  4px rgba(100,100,200,0.2); }
+  to   { box-shadow: 0 0 12px rgba(100,100,200,0.6); }
+}
+
+/* Completed game results */
+.slot.slot-p1 {
+  background: var(--p1);
+  border-color: var(--p1);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(74,158,255,0.5);
+}
+.slot.slot-p2 {
+  background: var(--p2);
+  border-color: var(--p2);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255,74,110,0.5);
+}
+/* Draw: half blue / half red */
+.slot.slot-draw {
+  background: conic-gradient(var(--p1) 0deg 180deg, var(--p2) 180deg 360deg);
+  border-color: transparent;
+  color: #fff;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+/* New-result pop */
+.slot.slot-new {
+  animation: slotNew 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slotNew {
+  0%   { transform: scale(0.5); opacity: 0.4; }
+  100% { transform: scale(1.0); opacity: 1;   }
+}
+
+.score-info {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.3px;
+}
+.score-info strong { color: var(--text); }
+
+/* ── Game Area (3-column grid) ──────────────────────────── */
+.game-area {
+  display: grid;
+  grid-template-columns: 1fr 230px 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
+  align-items: start;
+}
+
+/* ── Player Panels ──────────────────────────────────────── */
+.player-panel {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: border-color 0.35s, box-shadow 0.35s;
+}
+#panel1.active-turn {
+  border-color: var(--p1);
+  box-shadow: 0 0 28px rgba(74,158,255,0.25);
+}
+#panel2.active-turn {
+  border-color: var(--p2);
+  box-shadow: 0 0 28px rgba(255,74,110,0.25);
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.player-name { font-size: 18px; font-weight: 700; }
+#panel1 .player-name { color: var(--p1); }
+#panel2 .player-name { color: var(--p2); }
+
+.turn-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+#panel1.active-turn .turn-badge {
+  background: rgba(74,158,255,0.18);
+  color: var(--p1);
+  border: 1px solid rgba(74,158,255,0.4);
+  opacity: 1;
+}
+#panel2.active-turn .turn-badge {
+  background: rgba(255,74,110,0.18);
+  color: var(--p2);
+  border: 1px solid rgba(255,74,110,0.4);
+  opacity: 1;
+}
+
+/* ── Bingo Board ─────────────────────────────────────────── */
+.bingo-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  border-radius: 10px;
+  background: #1c1c3c;
+  border: 2px solid var(--border);
+  color: var(--text);
+  transition: background 0.3s, border-color 0.3s, color 0.3s,
+              transform 0.3s, box-shadow 0.3s;
+  user-select: none;
+}
+.cell.marked {
+  background: #2e2000;
+  border-color: var(--marked);
+  color: var(--marked);
+  box-shadow: 0 0 12px rgba(255,215,0,0.35);
+  transform: scale(0.92);
+}
+.cell.winning {
+  background: #002e18;
+  border-color: var(--winning);
+  color: var(--winning);
+  transform: scale(0.95);
+  animation: winPulse 0.65s ease-in-out infinite alternate;
+}
+@keyframes winPulse {
+  from { box-shadow: 0 0 10px rgba(0,230,118,0.35); }
+  to   { box-shadow: 0 0 26px rgba(0,230,118,0.85); }
+}
+
+/* ── Center Spin Panel ──────────────────────────────────── */
+.spin-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.turn-indicator { font-size: 13px; font-weight: 600; color: var(--dim); text-align: center; }
+#turnText { color: var(--text); font-size: 14px; }
+
+.spin-display {
+  width: 120px;
+  height: 120px;
+  background: var(--spin-bg);
+  border: 3px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 58px;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.spin-display.spinning {
+  border-color: #9b6aff;
+  box-shadow: 0 0 28px rgba(155,106,255,0.55);
+  animation: spinWiggle 0.12s linear infinite;
+}
+.spin-display.landed {
+  border-color: var(--marked);
+  box-shadow: 0 0 36px rgba(255,215,0,0.75);
+  animation: landBounce 0.55s cubic-bezier(0.36,0.07,0.19,0.97);
+}
+@keyframes spinWiggle {
+  0%   { transform: scale(1.00) rotate(-1deg); }
+  50%  { transform: scale(1.05) rotate( 1deg); }
+  100% { transform: scale(1.00) rotate(-1deg); }
+}
+@keyframes landBounce {
+  0%   { transform: scale(1.00); }
+  35%  { transform: scale(1.18); }
+  65%  { transform: scale(0.94); }
+  85%  { transform: scale(1.05); }
+  100% { transform: scale(1.00); }
+}
+
+.spin-btn {
+  width: 100%;
+  padding: 13px 0;
+  background: linear-gradient(135deg, #f0a500, #e06800);
+  border: none;
+  border-radius: 10px;
+  color: #1a0800;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.1s;
+  box-shadow: 0 4px 16px rgba(240,165,0,0.3);
+}
+.spin-btn:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-2px); }
+.spin-btn:active:not(:disabled) { transform: translateY(0); }
+.spin-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.called-section { width: 100%; }
+.called-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--dim);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.called-balls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+.ball {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+  background: #1a1a36;
+  border: 2px solid var(--border);
+  color: var(--dim);
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+.ball.called {
+  background: rgba(255,215,0,0.12);
+  border-color: var(--marked);
+  color: var(--marked);
+}
+.ball.just-called { animation: ballPop 0.5s ease; }
+@keyframes ballPop {
+  0%   { transform: scale(1.0); }
+  45%  { transform: scale(1.35); }
+  100% { transform: scale(1.0); }
+}
+.remaining-info { font-size: 11px; color: var(--dim); text-align: center; }
+
+/* ── Modals (shared base) ───────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,5,18,0.78);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: var(--card);
+  border: 2px solid #3a3a5e;
+  border-radius: 22px;
+  padding: 36px 40px;
+  text-align: center;
+  width: 90%;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  transform: scale(0.78);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.active .modal { transform: scale(1); }
+
+.modal-emoji  { font-size: 60px; margin-bottom: 12px; }
+.modal-title  {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #ffd700, #ff8800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.modal-btn {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, #f0a500, #e06800);
+  border: none;
+  border-radius: 10px;
+  color: #1a0800;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter 0.2s;
+  box-shadow: 0 4px 16px rgba(240,165,0,0.28);
+}
+.modal-btn:hover { filter: brightness(1.12); }
+
+/* ── Game Result Modal ──────────────────────────────────── */
+.game-modal { max-width: 320px; }
+
+.modal-series-score {
+  font-size: 14px;
+  color: var(--dim);
+  margin-bottom: 24px;
+}
+.modal-series-score strong { color: var(--text); }
+
+/* ── Series Over Modal ──────────────────────────────────── */
+.series-modal { max-width: 400px; }
+
+.series-final-score {
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--text);
+  margin: 6px 0 18px;
+}
+
+/* Mini recap dots */
+.series-recap {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.recap-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+.recap-dot.recap-p1   { background: var(--p1); }
+.recap-dot.recap-p2   { background: var(--p2); }
+.recap-dot.recap-draw {
+  background: conic-gradient(var(--p1) 0deg 180deg, var(--p2) 180deg 360deg);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 680px) {
+  .game-area { grid-template-columns: 1fr; }
+  .spin-panel { order: -1; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .spin-display { width: 90px; height: 90px; font-size: 44px; }
+  header h1 { font-size: 32px; letter-spacing: 6px; }
+  .scoreboard { flex-wrap: wrap; justify-content: center; }
+  .score-slots { flex-wrap: wrap; justify-content: center; }
+  .slot { width: 28px; height: 28px; font-size: 10px; }
+}
