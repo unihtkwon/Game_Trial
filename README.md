@@ -119,7 +119,7 @@ python -m http.server 8080
 ```
 Study-02/
 ├── index.html      # HTML 구조 및 모달
-├── style.css       # 다크 카지노 테마 (CSS 변수 기반)
+├── style.css       # Material Design 3 라이트 테마 (CSS 변수 기반)
 ├── game.js         # 게임 로직 · 시리즈 관리 · 렌더링
 ├── CLAUDE.md       # 개발자 가이드 (아키텍처 상세)
 └── README.md       # 이 파일
